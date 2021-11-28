@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Movement Simulator</title>
+    <script src="Output/data.js"></script>
+    <script type="text/javascript">
+      let setting = {
+        armBaseLength: 15.5 ,
+        armSecondaryLength: 16.3 ,
+
+        armSecondaryAngleAdjustment: 5,
+        armPenDownAngle: 30,
+
+        delayBeforeTogglePen: 500,
+        tolerance: 0.1,
+
+        portName: "COM7",
+        baudRate: 9600,
+      };
+
+      setting = appSettings;
+      // setting.armSecondaryLength *= 1.5;
+
+      const width = 2 * (setting.armBaseLength + setting.armSecondaryLength);
+      const height = setting.armBaseLength + setting.armSecondaryLength;
+      let paths = [{"alpha":41,"beta":42,"omega":34,"theta":91,"x":0.886277379160064,"y":13.514567981147152,"xString":"0.89","yString":"13.51"}];
+
+      // Get data from included js
+      paths = calculatedPaths;
+     
+      const dec = (val) => parseInt(new String(val)).toFixed(2);
+      const Cos = (angle) => Math.cos(rad(angle));
+      const Sin = (angle) => Math.sin(rad(angle));
+      const rad = (angle) =>(angle * Math.PI) / 180;
+      
+      const CIRCLE_R_MULTIPLIER = 2;
+    </script>
+    <style>
+      * {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      #canvas {
+        background-color: gray;
+        margin: auto;
+      }
+      #container {
+        text-align: center;
+        height: 100%;
+        padding: 50px;
+      }
+      .small {
+        font: italic 30px sans-serif;
+      }
+      .actual-circle:hover{
+        cursor: pointer;
+      }
+      
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <h2>Simulation</h2>
+      <h5>Don't forget to restart Arduino</h5>
+      <svg id="canvas">
+        <g id="point-content"></g>
+        
+        <g id="path-content"></g>
+      </svg>
+      <p id="progress"></p>
+    </div>
+    <script type="text/javascript">
+      const maxHor = setting.armBaseLength + setting.armSecondaryLength;
+      const fullLength = maxHor * 2;
+      const svg = document.getElementById("canvas");
+      const pathContent = document.getElementById("path-content");
+      const pointContent = document.getElementById("point-content");
+      let currentPathIndex = 0;
+      let originX = width / 2;
+      let originY = height;
+
+      let timeout;
+
+      function init() {
+        svg.setAttribute("width", width);
+        svg.setAttribute("height", height);
+
+        drawOriginPoint();
+        drawPaths();
+      }
+
+      function drawOriginPoint() {  svg.appendChild(createCircle(originX, originY, "red")); }
+    
+
+      function drawPaths() {
+
+        if (timeout) {  clearTimeout(timeout); }
+        
+        const path = paths[currentPathIndex];
+
+        //  console.log("Draw path", timeout, " Coordinate: ",  path.xString, path.yString);
+
+        pathContent.innerHTML = "";
+
+        // construct pathData
+        let baseHLength = setting.armBaseLength * Cos(path.alpha);
+        let baseVLength = setting.armBaseLength * Sin(path.alpha);
+        const baseArmXAdjusted = maxHor - baseHLength;
+        const baseArmYAdjusted = originY - baseVLength;
+
+        let secondaryHLength = setting.armSecondaryLength * Cos(path.beta);
+        let secondaryVLength = setting.armSecondaryLength * Sin(path.beta);
+        const secondaryArmXAdjusted = baseArmXAdjusted - secondaryHLength;
+        const secondaryArmYAdjusted = baseArmYAdjusted - secondaryVLength;
+        
+
+        let pathData                      = `M ${originX} ${originY} 
+                                             L ${baseArmXAdjusted} ${baseArmYAdjusted} 
+                                             L ${secondaryArmXAdjusted} ${secondaryArmYAdjusted}`;
+        let helperHorizontalLinePath      = `M ${0} ${baseArmYAdjusted}
+                                             L ${fullLength} ${baseArmYAdjusted}`;
+
+        const horizontalPath = setting.armBaseLength/ Cos(path.alpha);
+
+        let helperPerpendicularLinePath   = `M ${baseArmXAdjusted} ${baseArmYAdjusted}
+                                             L ${originX - horizontalPath} ${originY}`;
+        console.log();
+        const calX = CalculateX(path.alpha, path.beta);
+        const calY = CalculateY(path.alpha, path.beta);
+
+        console.log("Expected point", dec(path.x), dec(path.y));
+        console.log("CALCULATED point", dec(calX), dec(calY));
+        console.log("Actual point", dec(secondaryArmXAdjusted), dec(secondaryArmYAdjusted));
+
+        const pathElement = commonPath(pathData);
+        const pathHelperHorizontalElement = commonPath(helperHorizontalLinePath, 0.3, "rgb(200,10,0)");
+        const pathHelperPerpendicularElement = commonPath(helperPerpendicularLinePath, 0.3, "rgb(20,20,220)");
+
+        // Print angle
+        pathContent.appendChild(createText(originX, originY, "a: "+ path.alpha));
+        pathContent.appendChild(
+          createText(baseArmXAdjusted, baseArmYAdjusted, "b: "+ path.beta+", o:"+ path.omega +" => "+ ( path.beta + path.omega ))
+        );
+
+        /////////////////// Draw Points ///////////////////
+
+        // Exptected
+        pointContent.appendChild(
+          createCircle(path.x , height - path.y , "red", 0.7 * CIRCLE_R_MULTIPLIER)
+        );
+        // Actual
+        pointContent.appendChild(
+          actualPointCircle(secondaryArmXAdjusted, secondaryArmYAdjusted, path)
+        );
+
+        ////////////////// Append Lines /////////////////////////
+
+        pathContent.appendChild(pathElement);
+        pathContent.appendChild(pathHelperHorizontalElement);
+        pathContent.appendChild(pathHelperPerpendicularElement);
+
+        currentPathIndex++;
+
+        document.getElementById("progress").innerHTML = currentPathIndex+ "/"+paths.length;
+
+        if (currentPathIndex == paths.length) {
+          currentPathIndex = 0;
+          return;
+        }
+
+        timeout = setTimeout(drawPaths, 100);
+      }
+
+      /////
+
+      function CalculateY(alpha, beta)
+        {
+            let baseArmLengthVertical      = setting.armBaseLength * Sin(alpha);
+            let secondaryArmLengthVertical =  setting.armSecondaryLength * Sin(beta);
+
+            return baseArmLengthVertical + secondaryArmLengthVertical;
+        }
+
+        function CalculateX(alpha, beta)
+        {
+            let baseArmLengthHorizontal      = setting.armBaseLength * Cos(alpha);
+            let secondaryArmLengthHorizontal = setting.armSecondaryLength * Cos(beta);
+            
+            return maxHor - baseArmLengthHorizontal - secondaryArmLengthHorizontal;
+        }
+      /////////////// Svg Elements ///////////////
+
+      function actualPointCircle(x, y, path)
+      {
+        const circle = createCircle(x, y, "yellow");
+        circle.setAttribute("class", "actual-circle");
+        circle.onclick = function(e) {
+          console.info("x: ", dec(x), ", y: ", dec(y));
+          console.info("alpha: ",path.alpha, ", beta: ", path.beta, "omega: "+ path.omega);
+        }
+        return circle;
+      }
+
+      function createCircle(x, y, color, r = 0.4 * CIRCLE_R_MULTIPLIER) {
+        const circle = createSvgElement("circle");
+        circle.setAttribute("cx", x);
+        circle.setAttribute("cy", y);
+        circle.setAttribute("r", r);
+        circle.setAttribute("fill", color);
+        return circle;
+      }
+
+      function createText(x, y, text) {
+        const txt = createSvgElement("text");
+        txt.setAttribute("x", x);
+        txt.setAttribute("y", y);
+        txt.setAttribute("class", "small");
+        txt.innerHTML = text;
+        return txt;
+      }
+
+      function commonPath(d, stroke = 0.7, stokeColor = "#000") {
+        const path = createSvgElement("path");
+        path.setAttribute("d", d);
+        path.setAttribute("stroke", stokeColor);
+        path.setAttribute("stroke-width", stroke * CIRCLE_R_MULTIPLIER);
+        path.setAttribute("fill", "none");
+        return path;
+      }
+
+      const createSvgElement = (tag) => document.createElementNS("http://www.w3.org/2000/svg", tag);
+
+      init();
+    </script>
+  </body>
+</html>
