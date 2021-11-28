@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace MovementManager
 {
-    public class Setting
+    public class Setting : ISetting
     {
         private static JsonSerializerOptions options = new JsonSerializerOptions
         {
@@ -20,15 +20,16 @@ namespace MovementManager
         public double Tolerance { get; set; }
         public int DelayBeforeTogglePen { get; set; }
         public string PortName { get; set; }
-        public int BaudRate { get;  set; } = 9600;
-        public bool SimulationMode{get;set;} = true;
-        public bool ResetHardwareMode{get;set;} = false;
-        
+        public int BaudRate { get; set; } = 9600;
+        public bool SimulationMode { get; set; } = true;
+        public bool ResetHardwareMode { get; set; } = false;
+        public int LedBlinkCount { get; set; }
+
         public string Json()
         {
             return JsonSerializer.Serialize<Setting>(this, options);
         }
-        public static Setting FromFile(string path)
+        public static ISetting FromFile(string path)
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             using (StreamReader r = new StreamReader(path))
@@ -41,6 +42,6 @@ namespace MovementManager
             return FromJson(sb.ToString());
 
         }
-        public static Setting FromJson(string json) => (Setting)JsonSerializer.Deserialize<Setting>(json, options);
+        public static ISetting FromJson(string json) => (Setting)JsonSerializer.Deserialize<Setting>(json, options);
     }
 }

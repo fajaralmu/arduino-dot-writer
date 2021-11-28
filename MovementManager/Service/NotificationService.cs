@@ -2,20 +2,24 @@ using System;
 using System.Diagnostics;
 using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
+using MovementManager.Model;
 
 namespace MovementManager.Service
 {
 
     public interface INotificationService : IDisposable
     {
-        void NotifyProgress(int completed, int total);
+        void Start();
+        void NotifyProgress(int completed, int total, MovementProperty movementProperty);
+        void NotifyComplete();
     }
     public class NotificationService : INotificationService
     {
+        const int INDEX_PROGRESS = 0, INDEX_COMPLETE = 1;
         private readonly MemoryMappedFile _memoryMappedFile;
         private readonly string _memoryMapName;
         private readonly long _capacity;
-        private readonly Process _worker;
+        private Process _worker;
 
         public object WorkerApplication => "MovementManagerWorker.exe";
 
@@ -25,25 +29,63 @@ namespace MovementManager.Service
             _capacity = capacity;
             _memoryMappedFile = GetMemoryMappedFile();
 
-            // TODO include worker service app when building project
-            string dir = Environment.CurrentDirectory;
-            _worker = CreateWorker( $"{dir}\\WorkerService" );
-            _worker.Start();
         }
 
         private MemoryMappedFile GetMemoryMappedFile()
         {
             return MemoryMappedFile.CreateOrOpen( _memoryMapName, _capacity );
         }
-
-        public void NotifyProgress(int completed, int total)
-        {
-            using (var accessor = _memoryMappedFile.CreateViewAccessor(0, _capacity))
+        
+        public void Start()
+        {   
+            if ( _worker != null )
             {
-                accessor.WriteArray<int>(0, new int [] { completed, total }, 0, 2 );
-                // accessor.Write(2, total);
+                return;
+            }
+            string dir = Environment.CurrentDirectory;
+            _worker = CreateWorker( $"{dir}\\WorkerService" );
+            _worker.Start();
+        }
+
+        public void NotifyProgress(int completed, int total, MovementProperty movementProperty)
+        {
+            try {
+                using (var accessor = _memoryMappedFile.CreateViewAccessor(0, _capacity))
+                {
+                    accessor.Write(INDEX_COMPLETE, 0);
+                    accessor.WriteArray<int>(INDEX_PROGRESS, new int [] { completed, total }, 0, 2 );
+                    // accessor.Write(2, total);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Failed to notify progress: " + e.Message);
             }
             
+        }
+
+        public void NotifyComplete()
+        {
+            try {
+                using (var accessor = _memoryMappedFile.CreateViewAccessor(0, _capacity))
+                {
+                    accessor.Write(INDEX_COMPLETE, 1);
+                    // accessor.Write(2, total);
+                }
+                Debug.WriteLine("Notify complete");
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Failed to notify progress: " + e.Message);
+            }
+        }
+
+        // TODO fix method
+        private void TerminateWorker()
+        {
+            _worker.Kill();
+            _worker.WaitForExit();
+            _worker.Dispose();
         }
 
         private Process CreateWorker(string workingDirectory, string prefix = "/k")
