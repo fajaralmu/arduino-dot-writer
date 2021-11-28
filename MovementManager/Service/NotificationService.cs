@@ -21,9 +21,9 @@ namespace MovementManager.Service
         private readonly long _capacity;
         private Process _worker;
 
-        public object WorkerApplication => "MovementManagerWorker.exe";
+        public string WorkerApplication { get; set; } = ".\\WorkerService\\MovementManagerWorker.exe";
 
-        public NotificationService( string memoryMapName, long capacity )
+        public NotificationService(string memoryMapName, long capacity)
         {
             _memoryMapName = memoryMapName;
             _capacity = capacity;
@@ -33,27 +33,28 @@ namespace MovementManager.Service
 
         private MemoryMappedFile GetMemoryMappedFile()
         {
-            return MemoryMappedFile.CreateOrOpen( _memoryMapName, _capacity );
+            return MemoryMappedFile.CreateOrOpen(_memoryMapName, _capacity);
         }
-        
+
         public void Start()
-        {   
-            if ( _worker != null )
+        {
+            if (_worker != null)
             {
                 return;
             }
-            string dir = Environment.CurrentDirectory;
-            _worker = CreateWorker( $"{dir}\\WorkerService" );
+            _worker = CreateWorker( Environment.CurrentDirectory );
             _worker.Start();
+            Debug.WriteLine("Started worker: " + _worker.ProcessName);
         }
 
         public void NotifyProgress(int completed, int total, MovementProperty movementProperty)
         {
-            try {
+            try
+            {
                 using (var accessor = _memoryMappedFile.CreateViewAccessor(0, _capacity))
                 {
                     accessor.Write(INDEX_COMPLETE, 0);
-                    accessor.WriteArray<int>(INDEX_PROGRESS, new int [] { completed, total }, 0, 2 );
+                    accessor.WriteArray<int>(INDEX_PROGRESS, new int[] { completed, total }, 0, 2);
                     // accessor.Write(2, total);
                 }
             }
@@ -61,12 +62,13 @@ namespace MovementManager.Service
             {
                 Debug.WriteLine("Failed to notify progress: " + e.Message);
             }
-            
+
         }
 
         public void NotifyComplete()
         {
-            try {
+            try
+            {
                 using (var accessor = _memoryMappedFile.CreateViewAccessor(0, _capacity))
                 {
                     accessor.Write(INDEX_COMPLETE, 1);
@@ -90,7 +92,7 @@ namespace MovementManager.Service
 
         private Process CreateWorker(string workingDirectory, string prefix = "/k")
         {
-            string arguments = $"{WorkerApplication} mapName="+_memoryMapName;
+            string arguments = $"{WorkerApplication} mapName=" + _memoryMapName;
             Process proc = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -99,7 +101,7 @@ namespace MovementManager.Service
                     Arguments = prefix + arguments,
                     WindowStyle = ProcessWindowStyle.Normal,
                     WorkingDirectory = @workingDirectory,
-                    UseShellExecute =true
+                    UseShellExecute = true
                 }
             };
 

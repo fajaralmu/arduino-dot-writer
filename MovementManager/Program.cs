@@ -16,9 +16,8 @@ namespace MovementManager
             ISetting setting = Setting.FromFile(settingFile);
             setting.SimulationMode = true;
             INotificationService notificationService = new NotificationService( "movementnotif", 2000000 );
-            ImageWriter writer = new ImageWriter(notificationService, setting);
-
-            Bitmap image = ImageLoader.LoadImage("Input/SampleFont.bmp", writer.ImageWidth, writer.ImageHeight);
+            ImageWriterActuator writer = new ImageWriterActuator(notificationService, setting);
+            Bitmap image = ImageLoader.LoadImageBitmap("Input/SampleFont.bmp");
             writer.Execute(image);
 
         }

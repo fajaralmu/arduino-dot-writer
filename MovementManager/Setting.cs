@@ -27,7 +27,7 @@ namespace MovementManager
 
         public string Json()
         {
-            return JsonSerializer.Serialize<Setting>(this, options);
+            return JsonSerializer.Serialize(this, options);
         }
         public static ISetting FromFile(string path)
         {

@@ -18,7 +18,7 @@ using serial_communication_client.Serial;
 
 namespace MovementManager
 {
-    class ImageWriter
+    public class ImageWriterActuator
     {
 
         const double PX_PER_CM = 37.795280352161;
@@ -32,9 +32,7 @@ namespace MovementManager
         private Led _ledComponent;
         private readonly ISetting _setting;
         private readonly INotificationService _notificationService;
-        private int[][] _imageCode;
-
-        public ImageWriter(
+        public ImageWriterActuator(
             INotificationService notificationService,
             ISetting setting)
         {
@@ -46,9 +44,12 @@ namespace MovementManager
         public int ImageWidth => (int) (maxX - minX);
         public int ImageHeight => (int) (maxY - minY);
 
+        public string OutputPath { get; set; } = "Output";
+
         public void Execute(Bitmap image)
         {
-            _imageCode = ImageLoader.GetBlackAndWhiteImageCode(image);
+            image = ImageLoader.ResizeImage(image, ImageWidth, ImageHeight);
+            int[][] imageCode = ImageLoader.GetBlackAndWhiteImageCode(image);
             
             IService service = CreateService();
             service.Connect();
@@ -66,9 +67,9 @@ namespace MovementManager
                 }
             }
             // return;
-            ExtractMovementPropertiesFromImageCode(out ICollection<MovementProperty> movementProperties);
+            ExtractMovementPropertiesFromImageCode(imageCode, out ICollection<MovementProperty> movementProperties);
 
-            SaveToFile(movementProperties);
+            SaveToFile(movementProperties, image);
             ExecuteDraw(movementProperties);
 
             ToggleLedFinishOperation();
@@ -147,13 +148,13 @@ namespace MovementManager
                 //  break;
             }
 
-            SaveToFile(movementProperties);
+            SaveToFile(movementProperties, null);
             ExecuteDraw(movementProperties);
 
             ToggleLedFinishOperation();
 
         }
-        private void ExtractMovementPropertiesFromImageCode(out ICollection<MovementProperty> movementProperties)
+        private void ExtractMovementPropertiesFromImageCode(int[][] _imageCode, out ICollection<MovementProperty> movementProperties)
         {
 
             Debug.WriteLine($"MAX Horizontal Length: { maxX }, MAX Vertical Length: { maxY } ");
@@ -195,16 +196,31 @@ namespace MovementManager
             movementProperties.Add(prop);
         }
 
-        private void SaveToFile(ICollection<MovementProperty> movementProperties)
+        private void SaveToFile(ICollection<MovementProperty> movementProperties, Bitmap image = null)
         {
 
-            string jsonMovements = JsonHelper.ToJson(movementProperties);
-            string jsonSetting = JsonHelper.ToJson(_setting);
-            string content = $" const calculatedPaths = {jsonMovements};\n " +
-                                      $" const appSettings = {jsonSetting};";
+            try
+            {
+                string jsonMovements = JsonHelper.ToJson(movementProperties);
+                string jsonSetting = JsonHelper.ToJson(_setting);
+                string content = $" const calculatedPaths = {jsonMovements};\n " +
+                                 $" const appSettings = {jsonSetting};";
+                if ( image != null )
+                {
+                    using (FileStream fileStream = new FileStream( OutputPath + $"/img_{DateTime.Now:HHmmss}.bmp", FileMode.CreateNew))
+                    {
+                        image.Save(fileStream, ImageFormat.Bmp);
+                    }
+                }
+                File.WriteAllText( OutputPath + $"/path_{DateTime.Now:HHmmss}.json", jsonMovements);
+                File.WriteAllText( OutputPath + $"/data.js", content);
 
-            File.WriteAllText($"Output/path_{DateTime.Now:HHmmss}.json", jsonMovements);
-            File.WriteAllText($"Output/data.js", content);
+                Debug.WriteLine("Success saving to file");
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Failed to save paths to file: "+e.Message);
+            }
         }
 
         private void ExecuteDraw(ICollection<MovementProperty> movementProperties)
