@@ -13,11 +13,12 @@ namespace MovementManager
         {
             ConfigureLogger();
 
-            ISetting setting = Setting.FromFile(settingFile);
-            setting.SimulationMode = true;
-            INotificationService notificationService = new NotificationService( "movementnotif", 2000000 );
-            ImageWriterActuator writer = new ImageWriterActuator(notificationService, setting);
-            Bitmap image = ImageLoader.LoadImageBitmap("Input/SampleFont.bmp");
+            ISetting setting                            = Setting.FromFile(settingFile);
+            setting.SimulationMode                      = true;
+            INotificationService notificationService    = new NotificationService( "movementnotif", 2000000 );
+            ImageWriterActuator writer                  = new ImageWriterActuator(notificationService, setting);
+            Bitmap image                                = ImageLoader.LoadImageBitmap("Input/SampleFont.bmp");
+            
             writer.Execute(image);
 
         }

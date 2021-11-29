@@ -31,8 +31,8 @@ namespace MovementManager
         }
         public static ISetting FromFile(string path)
         {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            using (StreamReader r = new StreamReader(path))
+            System.Text.StringBuilder sb    = new System.Text.StringBuilder();
+            using (StreamReader r           = new StreamReader(path))
             {
                 while (r.Peek() >= 0)
                 {

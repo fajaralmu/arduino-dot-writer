@@ -22,9 +22,9 @@ namespace DotWriterServer.Controllers
             //         "This shouldn't be invoked in non-development environments.");
             // }
 
-            var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
-
-            HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+            IExceptionHandlerFeature context    = HttpContext.Features.Get<IExceptionHandlerFeature>();
+            HttpContext.Response.StatusCode     = StatusCodes.Status400BadRequest;
+            
             return Problem(
                      type: context.Error.GetType().Name,
                      detail: context.Error.StackTrace,

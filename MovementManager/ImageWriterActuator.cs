@@ -27,17 +27,17 @@ namespace MovementManager
 
         private double _verticalLength, _horizontalLength;
 
-        private Motor _baseMotorComponent, _secondaryMotorComponent;
-        private PenMotor _penMotorComponent;
-        private Led _ledComponent;
+        private Motor       _baseMotorComponent, _secondaryMotorComponent;
+        private PenMotor    _penMotorComponent;
+        private Led         _ledComponent;
         private readonly ISetting _setting;
         private readonly INotificationService _notificationService;
         public ImageWriterActuator(
             INotificationService notificationService,
             ISetting setting)
         {
-            _notificationService = notificationService;
-            _setting = setting;
+            _notificationService    = notificationService;
+            _setting                = setting;
             ConfigureBounds();
         }
 
@@ -48,10 +48,10 @@ namespace MovementManager
 
         public void Execute(Bitmap image)
         {
-            image = ImageLoader.ResizeImage(image, ImageWidth, ImageHeight);
-            int[][] imageCode = ImageLoader.GetBlackAndWhiteImageCode(image);
-            
-            IService service = CreateService();
+            image               = ImageLoader.ResizeImage(image, ImageWidth, ImageHeight);
+            int[][] imageCode   = ImageLoader.GetBlackAndWhiteImageCode(image);
+            IService service    = CreateService();
+
             service.Connect();
 
             InitComponent(service);
@@ -96,8 +96,8 @@ namespace MovementManager
 
         private void ConfigureBounds()
         {
-            _verticalLength = _setting.ArmBaseLength + _setting.ArmSecondaryLength;
-            _horizontalLength = _setting.ArmBaseLength + _setting.ArmSecondaryLength;
+            _verticalLength     = _setting.ArmBaseLength + _setting.ArmSecondaryLength;
+            _horizontalLength   = _setting.ArmBaseLength + _setting.ArmSecondaryLength;
 
             // maximum value
             maxX = _horizontalLength - _setting.ArmSecondaryLength;
@@ -111,14 +111,14 @@ namespace MovementManager
 
         private void InitComponent(IService service)
         {
-            _baseMotorComponent = new Motor(HardwarePin.MOTOR_A_PIN, service) { EnableStepMove = true, AngleStep = 10 };
-            _secondaryMotorComponent = new Motor(HardwarePin.MOTOR_B_PIN, service) { EnableStepMove = true, AngleStep = 10 };
-            _ledComponent = new Led(HardwarePin.DEFAULT_LED, service);
+            _baseMotorComponent         = new Motor(HardwarePin.MOTOR_A_PIN, service) { EnableStepMove = true, AngleStep = 10 };
+            _secondaryMotorComponent    = new Motor(HardwarePin.MOTOR_B_PIN, service) { EnableStepMove = true, AngleStep = 10 };
+            _ledComponent               = new Led(HardwarePin.DEFAULT_LED, service);
 
-            _penMotorComponent = new PenMotor(HardwarePin.MOTOR_PEN_PIN, service, _setting.ArmPenDownAngle, _setting.ArmPenUpAngle)
+            _penMotorComponent          = new PenMotor(HardwarePin.MOTOR_PEN_PIN, service, _setting.ArmPenDownAngle, _setting.ArmPenUpAngle)
             {
-                PenDownWaitDuration = _setting.ArmPenDownWaitDuration,
-                PenUpWaitDuration = _setting.ArmPenUpWaitDuration
+                PenDownWaitDuration     = _setting.ArmPenDownWaitDuration,
+                PenUpWaitDuration       = _setting.ArmPenUpWaitDuration
             };
         }
 
@@ -201,10 +201,10 @@ namespace MovementManager
 
             try
             {
-                string jsonMovements = JsonHelper.ToJson(movementProperties);
-                string jsonSetting = JsonHelper.ToJson(_setting);
-                string content = $" const calculatedPaths = {jsonMovements};\n " +
-                                 $" const appSettings = {jsonSetting};";
+                string jsonMovements    = JsonHelper.ToJson(movementProperties);
+                string jsonSetting      = JsonHelper.ToJson(_setting);
+                string content          = $" const calculatedPaths = {jsonMovements};\n " +
+                                          $" const appSettings = {jsonSetting};";
                 if ( image != null )
                 {
                     using (FileStream fileStream = new FileStream( OutputPath + $"/img_{DateTime.Now:HHmmss}.bmp", FileMode.CreateNew))
@@ -226,8 +226,8 @@ namespace MovementManager
         private void ExecuteDraw(ICollection<MovementProperty> movementProperties)
         {
 
-            int step = 0;
-            int totalStep = movementProperties.Count;
+            int step        = 0;
+            int totalStep   = movementProperties.Count;
 
             _notificationService.Start();
 
@@ -374,17 +374,17 @@ namespace MovementManager
 
         double CalculateHorizontalPositionFromGivenAngle(double alpha, double beta)
         {
-            double baseArmLengthHorizontal = _setting.ArmBaseLength * MathHelper.Cos(alpha);
+            double baseArmLengthHorizontal      = _setting.ArmBaseLength * MathHelper.Cos(alpha);
             double secondaryArmLengthHorizontal = _setting.ArmSecondaryLength * MathHelper.Cos(beta);
-            double totalArmLengthHorizontal = baseArmLengthHorizontal + secondaryArmLengthHorizontal;
+            double totalArmLengthHorizontal     = baseArmLengthHorizontal + secondaryArmLengthHorizontal;
 
             return _horizontalLength - totalArmLengthHorizontal;
         }
         private double CalculateVerticalPositionFromGivenAngle(double alpha, double beta)
         {
-            double baseArmLengthVertical = _setting.ArmBaseLength * MathHelper.Sin(alpha);
-            double secondaryArmLengthVertical = _setting.ArmSecondaryLength * MathHelper.Sin(beta);
-            double totalArmLengthVertical = baseArmLengthVertical + secondaryArmLengthVertical;
+            double baseArmLengthVertical        = _setting.ArmBaseLength * MathHelper.Sin(alpha);
+            double secondaryArmLengthVertical   = _setting.ArmSecondaryLength * MathHelper.Sin(beta);
+            double totalArmLengthVertical       = baseArmLengthVertical + secondaryArmLengthVertical;
 
             return totalArmLengthVertical;
         }
@@ -397,8 +397,8 @@ namespace MovementManager
         // relative angle from base arm latest position against x axis
         private byte CalculateOmega(double alpha)
         {
-            double baseArmPependicular = _setting.ArmBaseLength * MathHelper.Tan(alpha);
-            double baseArmLengthVertical = _setting.ArmBaseLength * MathHelper.Sin(alpha);
+            double baseArmPependicular      = _setting.ArmBaseLength * MathHelper.Tan(alpha);
+            double baseArmLengthVertical    = _setting.ArmBaseLength * MathHelper.Sin(alpha);
             return (byte)MathHelper.SinAngle(baseArmLengthVertical / baseArmPependicular);
         }
 

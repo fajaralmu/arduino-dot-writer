@@ -22,12 +22,12 @@ namespace MovementManager.Model
 
         public MovementProperty(double x, double y, double alpha, double beta, double theta, double omega)
         {
-            Alpha = (byte)alpha;
-            Beta = (byte)beta;
-            Theta = (byte)theta;
-            Omega = (byte) omega;
-            X = x;
-            Y = y;
+            Alpha   = (byte)alpha;
+            Beta    = (byte)beta;
+            Theta   = (byte)theta;
+            Omega   = (byte) omega;
+            X       = x;
+            Y       = y;
         }
 
         internal bool AngleEquals(MovementProperty prop)

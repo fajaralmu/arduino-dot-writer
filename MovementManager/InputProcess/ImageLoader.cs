@@ -43,18 +43,18 @@ namespace MovementManager.InputProcess
         {
             Debug.WriteLine("Resize image: " + width + " x " + height);
             
-            Rectangle destRect = new Rectangle(0, 0, width, height);
-            Bitmap destImage = new Bitmap(width, height);
+            Rectangle destRect  = new Rectangle(0, 0, width, height);
+            Bitmap destImage    = new Bitmap(width, height);
 
             destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 
             using (Graphics graphics = Graphics.FromImage(destImage))
             {
-                graphics.CompositingMode = CompositingMode.SourceCopy;
+                graphics.CompositingMode    = CompositingMode.SourceCopy;
                 graphics.CompositingQuality = CompositingQuality.HighQuality;
-                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                graphics.SmoothingMode = SmoothingMode.HighQuality;
-                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                graphics.InterpolationMode  = InterpolationMode.HighQualityBicubic;
+                graphics.SmoothingMode      = SmoothingMode.HighQuality;
+                graphics.PixelOffsetMode    = PixelOffsetMode.HighQuality;
 
                 using (ImageAttributes wrapMode = new ImageAttributes())
                 {
@@ -79,6 +79,7 @@ namespace MovementManager.InputProcess
             for (int i = 0; i < image.Width; i++)
             {
                 imageCode[i] = new int[image.Height];
+                
                 for (int j = 0; j < image.Height; j++)
                 {
                     Color c = image.GetPixel(i, j);

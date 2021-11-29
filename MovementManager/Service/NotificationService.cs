@@ -25,9 +25,9 @@ namespace MovementManager.Service
 
         public NotificationService(string memoryMapName, long capacity)
         {
-            _memoryMapName = memoryMapName;
-            _capacity = capacity;
-            _memoryMappedFile = GetMemoryMappedFile();
+            _memoryMapName      = memoryMapName;
+            _capacity           = capacity;
+            _memoryMappedFile   = GetMemoryMappedFile();
 
         }
 
@@ -92,16 +92,16 @@ namespace MovementManager.Service
 
         private Process CreateWorker(string workingDirectory, string prefix = "/k")
         {
-            string arguments = $"{WorkerApplication} mapName=" + _memoryMapName;
-            Process proc = new Process
+            string arguments    = $"{WorkerApplication} mapName=" + _memoryMapName;
+            Process proc        = new Process
             {
-                StartInfo = new ProcessStartInfo
+                StartInfo       = new ProcessStartInfo
                 {
-                    FileName = "cmd.exe",
-                    Arguments = prefix + arguments,
-                    WindowStyle = ProcessWindowStyle.Normal,
-                    WorkingDirectory = @workingDirectory,
-                    UseShellExecute = true
+                    FileName            = "cmd.exe",
+                    Arguments           = prefix + arguments,
+                    WindowStyle         = ProcessWindowStyle.Normal,
+                    WorkingDirectory    = @workingDirectory,
+                    UseShellExecute     = true
                 }
             };
 

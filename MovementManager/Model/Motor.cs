@@ -55,9 +55,9 @@ namespace MovementManager.Model
 
         private void MoveByStep(byte angle, int waitDuration)
         {
-            int diff = Math.Abs(_lastAngle - angle);
-            int step = diff / AngleStep;
-            int increment = angle > _lastAngle ? 1 : -1;
+            int diff        = Math.Abs(_lastAngle - angle);
+            int step        = diff / AngleStep;
+            int increment   = angle > _lastAngle ? 1 : -1;
 
             // move step by step
             for (int i = 1; i <= step; i++)

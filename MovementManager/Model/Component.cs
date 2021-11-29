@@ -9,8 +9,8 @@ namespace MovementManager.Model
         protected readonly IService _service;
         public Component( HardwarePin pin, IService service )
         {
-            Pin = pin;
-            _service = service;
+            Pin         = pin;
+            _service    = service;
         }
     }
 }

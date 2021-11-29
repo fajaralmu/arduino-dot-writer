@@ -15,8 +15,8 @@ namespace MovementManager.Model
             byte pinDownAngle, 
             byte pinUpAngle ) : base(pin, service)
         {
-            PenDownAngle = pinDownAngle;
-            PenUpAngle = pinUpAngle;
+            PenDownAngle    = pinDownAngle;
+            PenUpAngle      = pinUpAngle;
         }
 
         public void PenDown() => Move(PenDownAngle, PenDownWaitDuration);

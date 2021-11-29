@@ -39,9 +39,9 @@ namespace serial_communication_client.Serial
 
         private SerialClient(string portName, int baudRate, bool showRawData = false)
         {
-            _portName = portName;
-            _baudRate = baudRate;
-            _showRawData = showRawData;
+            _portName       = portName;
+            _baudRate       = baudRate;
+            _showRawData    = showRawData;
         }
 
         public bool Connected => _serialPort != null && _serialPort.IsOpen;
@@ -77,9 +77,8 @@ namespace serial_communication_client.Serial
 
         private void OnDataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            lastReceived = DateTime.Now;
-
-            string data = _serialPort.ReadLine().Trim();
+            lastReceived    = DateTime.Now;
+            string data     = _serialPort.ReadLine().Trim();
             
             if ( _showRawData )
             {
@@ -171,9 +170,10 @@ namespace serial_communication_client.Serial
         {
             Reset();
             _currentCommandName = command.Name;
-            Log("[Start Command] " + command.Name);
-            long startCommand = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            long startCommand   = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
+            Log("[Start Command] " + command.Name);
+            
             _serialPort.Write(command.Extract(), 0, command.Size);
 
             bool responseReceived = WaitForResponse( out int waitingForResponseDuration );

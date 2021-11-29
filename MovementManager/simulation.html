@@ -22,9 +22,9 @@
       setting = appSettings;
       // setting.armSecondaryLength *= 1.5;
 
-      const width = 2 * (setting.armBaseLength + setting.armSecondaryLength);
-      const height = setting.armBaseLength + setting.armSecondaryLength;
-      let paths = [{"alpha":41,"beta":42,"omega":34,"theta":91,"x":0.886277379160064,"y":13.514567981147152,"xString":"0.89","yString":"13.51"}];
+      const width   = 2 * (setting.armBaseLength + setting.armSecondaryLength);
+      const height  = setting.armBaseLength + setting.armSecondaryLength;
+      let paths     = [{"alpha":41,"beta":42,"omega":34,"theta":91,"x":0.886277379160064,"y":13.514567981147152,"xString":"0.89","yString":"13.51"}];
 
       // Get data from included js
       paths = calculatedPaths;
@@ -70,14 +70,14 @@
       <p id="progress"></p>
     </div>
     <script type="text/javascript">
-      const maxHor = setting.armBaseLength + setting.armSecondaryLength;
-      const fullLength = maxHor * 2;
-      const svg = document.getElementById("canvas");
-      const pathContent = document.getElementById("path-content");
-      const pointContent = document.getElementById("point-content");
-      let currentPathIndex = 0;
-      let originX = width / 2;
-      let originY = height;
+      const maxHor          = setting.armBaseLength + setting.armSecondaryLength;
+      const fullLength      = maxHor * 2;
+      const svg             = document.getElementById("canvas");
+      const pathContent     = document.getElementById("path-content");
+      const pointContent    = document.getElementById("point-content");
+      let currentPathIndex  = 0;
+      let originX           = width / 2;
+      let originY           = height;
 
       let timeout;
 
@@ -103,13 +103,13 @@
         pathContent.innerHTML = "";
 
         // construct pathData
-        let baseHLength = setting.armBaseLength * Cos(path.alpha);
-        let baseVLength = setting.armBaseLength * Sin(path.alpha);
-        const baseArmXAdjusted = maxHor - baseHLength;
-        const baseArmYAdjusted = originY - baseVLength;
+        let baseHLength         = setting.armBaseLength * Cos(path.alpha);
+        let baseVLength         = setting.armBaseLength * Sin(path.alpha);
+        const baseArmXAdjusted  = maxHor - baseHLength;
+        const baseArmYAdjusted  = originY - baseVLength;
 
-        let secondaryHLength = setting.armSecondaryLength * Cos(path.beta);
-        let secondaryVLength = setting.armSecondaryLength * Sin(path.beta);
+        let secondaryHLength    = setting.armSecondaryLength * Cos(path.beta);
+        let secondaryVLength    = setting.armSecondaryLength * Sin(path.beta);
         const secondaryArmXAdjusted = baseArmXAdjusted - secondaryHLength;
         const secondaryArmYAdjusted = baseArmYAdjusted - secondaryVLength;
         
@@ -132,9 +132,9 @@
         console.log("CALCULATED point", dec(calX), dec(calY));
         console.log("Actual point", dec(secondaryArmXAdjusted), dec(secondaryArmYAdjusted));
 
-        const pathElement = commonPath(pathData);
-        const pathHelperHorizontalElement = commonPath(helperHorizontalLinePath, 0.3, "rgb(200,10,0)");
-        const pathHelperPerpendicularElement = commonPath(helperPerpendicularLinePath, 0.3, "rgb(20,20,220)");
+        const pathElement                     = commonPath(pathData);
+        const pathHelperHorizontalElement     = commonPath(helperHorizontalLinePath, 0.3, "rgb(200,10,0)");
+        const pathHelperPerpendicularElement  = commonPath(helperPerpendicularLinePath, 0.3, "rgb(20,20,220)");
 
         // Print angle
         pathContent.appendChild(createText(originX, originY, "a: "+ path.alpha));

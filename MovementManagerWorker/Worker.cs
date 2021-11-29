@@ -21,9 +21,9 @@ namespace MovementManagerWorker
 
         public Worker(ILogger<Worker> logger, IConfiguration configuration)
         {
-            _logger = logger;
-            _configuration = configuration;
-            _memoryMappedFile = CreateMemoryMappedFile();
+            _logger             = logger;
+            _configuration      = configuration;
+            _memoryMappedFile   = CreateMemoryMappedFile();
         }
 
         private string MemoryMappedFileName => _configuration.GetValue<string>("mapName");
@@ -62,18 +62,18 @@ namespace MovementManagerWorker
         int[] buffer = new int[255];
         private void PrintCompletedStep()
         {
-            using (var accessor = _memoryMappedFile.CreateViewAccessor(0, 2000000, MemoryMappedFileAccess.Read))
+            using (var accessor     = _memoryMappedFile.CreateViewAccessor(0, 2000000, MemoryMappedFileAccess.Read))
             {
                 accessor.ReadArray<int>(0, buffer, 0, 2);
-                int completedStep = buffer[0];
-                int totalStep = buffer[1];
+                int completedStep   = buffer[0];
+                int totalStep       = buffer[1];
                 if ( _currentCompletedStep == completedStep && _currentTotalStep == totalStep )
                 {
                    // _logger.LogInformation("SKIP");
                    // return;
                 }
-                _currentCompletedStep = completedStep;
-                _currentTotalStep = totalStep;
+                _currentCompletedStep   = completedStep;
+                _currentTotalStep       = totalStep;
                 _logger.LogInformation($"Progress: { completedStep } / { totalStep } ");
             }
         }
