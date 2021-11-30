@@ -1,12 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Net;
 using DotWriterServer.Middlewares;
 using DotWriterServer.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using MovementManager;
@@ -38,6 +42,7 @@ namespace DotWriterServer
             services.AddSingleton<IActuatorService, ActuatorService>();
             services.AddSingleton<IDotWriterService, DotWriterService>();
 
+            services.AddMvc(options => options.EnableEndpointRouting = false );
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -48,14 +53,16 @@ namespace DotWriterServer
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
+            app.UseDeveloperExceptionPage();
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DotWriterServer v1"));
+       
+            app.UseStaticFiles(new StaticFileOptions
             {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DotWriterServer v1"));
-            }
+                FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "Assets")),
+                RequestPath = "/assets"
+            });
 
-            app.UseHttpsRedirection();
             app.UseMiddleware<CustomFilterMiddleware>();
             app.UseRouting();
 
@@ -63,10 +70,17 @@ namespace DotWriterServer
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints.MapGet("/", async context =>
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.Redirect;
+                    context.Response.Headers.Add("location", "/web/");
+                    await context.Response.WriteAsync("Dot Writer. Redirecting");
+                });
+
             });
 
             app.UseExceptionHandler("/error");
+            app.UseMvc();
 
         }
 

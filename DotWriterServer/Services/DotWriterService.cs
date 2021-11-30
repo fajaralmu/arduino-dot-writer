@@ -16,6 +16,10 @@ namespace DotWriterServer.Services
         }
         public WebResponse<bool> Execute(string base64Image)
         {
+            if (base64Image.Split(",").Length == 2)
+            {
+                base64Image = base64Image.Split(",")[1];
+            }
             Bitmap bitmap = ToBitmap(base64Image);
             _ = Task.Run(() =>
             {
