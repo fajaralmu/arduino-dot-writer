@@ -9,6 +9,7 @@ namespace DotWriterServer.Services
 {
     public class DotWriterService : IDotWriterService
     {
+        private bool _busy = false;
         private readonly IActuatorService _actuator;
         public DotWriterService(IActuatorService actuator)
         {
@@ -16,11 +17,16 @@ namespace DotWriterServer.Services
         }
         public WebResponse<bool> Execute(string base64Image)
         {
+            if ( _busy )
+            {
+                throw new MethodAccessException("Actuator isbusy");
+            }
             if (base64Image.Split(",").Length == 2)
             {
                 base64Image = base64Image.Split(",")[1];
             }
             Bitmap bitmap = ToBitmap(base64Image);
+            _busy = true;
             _ = Task.Run(() =>
             {
                 try 
@@ -30,6 +36,10 @@ namespace DotWriterServer.Services
                 catch (Exception e)
                 {
                     Debug.WriteLine("Failed to execute: " + e.Message);
+                }
+                finally
+                {
+                    _busy = false;
                 }
             });
             return WebResponse<bool>.SuccessResponse(true);
