@@ -30,6 +30,9 @@ namespace MovementManager
         private Motor       _baseMotorComponent, _secondaryMotorComponent;
         private PenMotor    _penMotorComponent;
         private Led         _ledComponent;
+
+        
+
         private readonly ISetting _setting;
         private readonly INotificationService _notificationService;
         public ImageWriterActuator(
@@ -46,15 +49,22 @@ namespace MovementManager
 
         public string OutputPath { get; set; } = "Output";
 
+        private IService _service;
+
+        public void ForceStop()
+        {
+            _service?.Close();
+        }
+
         public void Execute(Bitmap image)
         {
             image               = ImageLoader.ResizeImage(image, ImageWidth, ImageHeight);
             int[][] imageCode   = ImageLoader.GetBlackAndWhiteImageCode(image);
-            IService service    = CreateService();
+            _service            = CreateService();
 
-            service.Connect();
+            _service.Connect();
 
-            InitComponent(service);
+            InitComponent(_service);
 
             // Task.Run(() =>
             // {
@@ -77,13 +87,13 @@ namespace MovementManager
             if (_setting.SimulationMode == false)
                 ResetHardware();
 
-            service.Close();
+            _service.Close();
 
             Debug.WriteLine(" =========== End execution ============ ");
 
-            if (service.Connected)
+            if (_service.Connected)
             {
-                service.Close();
+                _service.Close();
             }
 
         }

@@ -25,5 +25,11 @@ namespace DotWriterServer.Controllers
         {
             return Json(_dotWriterService.Execute(base64Image));
         }
+
+        [HttpPost, Route("disconnect")]
+        public ActionResult<WebResponse<bool>> Disconnect()
+        {
+            return Json(_dotWriterService.Disconnect());
+        }
     }
 }

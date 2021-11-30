@@ -31,6 +31,7 @@
                     <img id="img-preview" width="200" height="200" />
                     <p></p>
                     <input type="submit" class="btn btn-primary" value="Submit"/>
+                    <a class="btn btn-danger" onclick="forceStop(event)">Stop Actuator</a>
                 </form>
             </div>
             <div class="col-3"></div>
@@ -39,6 +40,22 @@
     <script type="text/javascript">
         const imagePreview  = document.getElementById("img-preview");
         let base64String    = null;
+
+        function forceStop(event)
+        {
+            if (!confirm("Stop actuator?"))
+            {
+                return;
+            }
+            executeStop()
+            .then(response=>{
+                alert("Success");
+            })
+            .catch(error=>{
+                console.error(error);
+                alert("Failed to stop");
+            });
+        }
 
         function handleSubmit(event)
         {

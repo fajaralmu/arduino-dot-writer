@@ -9,5 +9,6 @@ namespace DotWriterServer.Services
     public interface IActuatorService
     {
         void ExecuteImageWriter(Bitmap bitmap);
+        void Disconnect();
     }
 }

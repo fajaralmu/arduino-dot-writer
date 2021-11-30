@@ -35,6 +35,12 @@ namespace DotWriterServer.Services
             return WebResponse<bool>.SuccessResponse(true);
         }
 
+        public WebResponse<bool> Disconnect()
+        {
+            _actuator.Disconnect();
+            return WebResponse<bool>.SuccessResponse(true);
+        }
+
         private Bitmap ToBitmap(string base64Image)
         {
             byte[] bitmapData = System.Convert.FromBase64String(FixBase64ForImage(base64Image));

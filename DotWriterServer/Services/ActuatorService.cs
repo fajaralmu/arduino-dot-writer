@@ -24,6 +24,11 @@ namespace DotWriterServer.Services
                 OutputPath = "../MovementManager/Output"
             };
         }
+
+        public void Disconnect()
+        {
+            _imageWriterActuator.ForceStop();
+        }
         public void ExecuteImageWriter(Bitmap bitmap)
         {
             Debug.WriteLine("ExecuteImageWriter::Execute");
