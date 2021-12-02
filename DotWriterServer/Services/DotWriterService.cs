@@ -39,6 +39,7 @@ namespace DotWriterServer.Services
                 }
                 finally
                 {
+                    Debug.WriteLine("End execution");
                     _busy = false;
                 }
             });
@@ -47,7 +48,14 @@ namespace DotWriterServer.Services
 
         public WebResponse<bool> Disconnect()
         {
-            _actuator.Disconnect();
+            try 
+            {
+                _actuator.Disconnect();
+            }
+            catch (Exception)
+            {
+                //
+            }
             return WebResponse<bool>.SuccessResponse(true);
         }
 
