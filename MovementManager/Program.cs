@@ -14,12 +14,19 @@ namespace MovementManager
             ConfigureLogger();
 
             ISetting setting                            = Setting.FromFile(settingFile);
-            setting.SimulationMode                      = true;
+            // setting.SimulationMode                      = true;
             INotificationService notificationService    = new NotificationService( "movementnotif", 2000000 );
             ImageWriterActuator writer                  = new ImageWriterActuator(notificationService, setting);
             Bitmap image                                = ImageLoader.LoadImageBitmap("Input/SampleFont.bmp");
+
+            DCMotorActuator motorActuator = new DCMotorActuator(setting);
             
-            writer.Execute(image);
+            for (var i = 0; i < 10; i++)
+            {
+                motorActuator.MoveMotor(200, 2000);    
+                motorActuator.StopMotor(1000);
+            }
+            // writer.Execute(image);
 
         }
 

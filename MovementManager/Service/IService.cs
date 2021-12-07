@@ -6,9 +6,12 @@ namespace MovementManager.Service
     {
         bool Connected { get; }
 
-        void MoveMotor( HardwarePin pin, byte angle, int waitDuration = 0 );
+        void MoveServo( HardwarePin pin, byte angle, int waitDuration = 0 );
         int ReadMotorAngle( HardwarePin pin );
         void ToggleLed( HardwarePin pin, bool turnOn = true, int waitDuration = 0 );
+
+        void MoveMotor( HardwarePin pin, byte in1, byte in2, byte speed,int waitDuration = 0 );
+        void StopMotor( HardwarePin pin, int waitDuration = 0 );
 
         void Connect();
         void Close();

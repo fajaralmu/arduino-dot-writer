@@ -25,9 +25,9 @@ namespace  MovementManager.Service
             _client.Connect();
         }
 
-        public void MoveMotor(HardwarePin pin, byte angle, int waitDuration = 0)
+        public void MoveServo(HardwarePin pin, byte angle, int waitDuration = 0)
         { 
-            CommandMotorPayload command = CommandMotorPayload.NewCommand( pin, angle );
+            CommandPayload command = CommandMotorPayload.NewCommand( pin, angle );
             _client.Send( command, 0 );
             
             Thread.Sleep( waitDuration );
@@ -44,7 +44,18 @@ namespace  MovementManager.Service
 
         public void ToggleLed(HardwarePin pin, bool turnOn = true, int waitDuration = 0)
         {
-            CommandLedPayload cmd = new CommandLedPayload( turnOn ? CommandName.LED_ON : CommandName.LED_OFF, pin );
+            CommandPayload cmd = new CommandLedPayload( turnOn ? CommandName.LED_ON : CommandName.LED_OFF, pin );
+            _client.Send( cmd, waitDuration );
+        }
+
+        public void MoveMotor(HardwarePin pin, byte in1, byte in2, byte speed, int waitDuration = 0)
+        {
+            CommandPayload cmd = new CommandDcMotorPayload(pin, in1, in2, speed);
+            _client.Send( cmd, waitDuration );
+        }
+        public void StopMotor(HardwarePin pin, int waitDuration = 0)
+        {
+            CommandPayload cmd = new CommandStopMotorPayload(pin);
             _client.Send( cmd, waitDuration );
         }
     }

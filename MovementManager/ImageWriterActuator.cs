@@ -5,20 +5,16 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Text.Json;
 using System.Threading;
-using System.Threading.Tasks;
-using arduino_client_hand_writer.Serial;
 using MovementManager.Helper;
 using MovementManager.InputProcess;
 using MovementManager.Model;
 using MovementManager.Service;
 using serial_communication_client;
-using serial_communication_client.Serial;
 
 namespace MovementManager
 {
-    public class ImageWriterActuator
+    public class ImageWriterActuator : BaseActuator
     {
 
         const double PX_PER_CM = 37.795280352161;
@@ -27,20 +23,16 @@ namespace MovementManager
 
         private double _verticalLength, _horizontalLength;
 
-        private Motor       _baseMotorComponent, _secondaryMotorComponent;
+        private Servo       _baseMotorComponent, _secondaryMotorComponent;
         private PenMotor    _penMotorComponent;
         private Led         _ledComponent;
 
-        
-
-        private readonly ISetting _setting;
         private readonly INotificationService _notificationService;
         public ImageWriterActuator(
             INotificationService notificationService,
-            ISetting setting)
+            ISetting setting): base(setting)
         {
-            _notificationService    = notificationService;
-            _setting                = setting;
+            _notificationService = notificationService;
             ConfigureBounds();
         }
 
@@ -97,13 +89,6 @@ namespace MovementManager
             }
 
         }
-
-        private IService CreateService()
-        {
-            IClient client = _setting.SimulationMode ? new MockClient() : SerialClient.Create(_setting.PortName, _setting.BaudRate, false);
-            return new ServiceImpl(client);
-        }
-
         private void ConfigureBounds()
         {
             _verticalLength     = _setting.ArmBaseLength + _setting.ArmSecondaryLength;
@@ -121,11 +106,11 @@ namespace MovementManager
 
         private void InitComponent(IService service)
         {
-            _baseMotorComponent         = new Motor(HardwarePin.MOTOR_A_PIN, service) { EnableStepMove = true, AngleStep = 10 };
-            _secondaryMotorComponent    = new Motor(HardwarePin.MOTOR_B_PIN, service) { EnableStepMove = true, AngleStep = 10 };
+            _baseMotorComponent         = new Servo(HardwarePin.SERVO_A_PIN, service) { EnableStepMove = true, AngleStep = 10 };
+            _secondaryMotorComponent    = new Servo(HardwarePin.SERVO_B_PIN, service) { EnableStepMove = true, AngleStep = 10 };
             _ledComponent               = new Led(HardwarePin.DEFAULT_LED, service);
 
-            _penMotorComponent          = new PenMotor(HardwarePin.MOTOR_PEN_PIN, service, _setting.ArmPenDownAngle, _setting.ArmPenUpAngle)
+            _penMotorComponent          = new PenMotor(HardwarePin.SERVO_PEN_PIN, service, _setting.ArmPenDownAngle, _setting.ArmPenUpAngle)
             {
                 PenDownWaitDuration     = _setting.ArmPenDownWaitDuration,
                 PenUpWaitDuration       = _setting.ArmPenUpWaitDuration

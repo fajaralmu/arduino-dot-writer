@@ -5,7 +5,7 @@ using serial_communication_client;
 
 namespace MovementManager.Model
 {
-    public class Motor : Component
+    public class Servo : Component
     {
         public bool EnableStepMove { get; set; }
         public int DelayPerStep { get; set; } = 5;
@@ -23,7 +23,7 @@ namespace MovementManager.Model
 
         private int _angleStep = 5;
         private int _lastAngle;
-        public Motor(HardwarePin pin, IService service) : base(pin, service)
+        public Servo(HardwarePin pin, IService service) : base(pin, service)
         {
             _lastAngle = _service.ReadMotorAngle(Pin);
         }
@@ -35,7 +35,7 @@ namespace MovementManager.Model
             }
             else
             {
-                _service.MoveMotor(Pin, angle, waitDuration);
+                _service.MoveServo(Pin, angle, waitDuration);
             }
 
             // Console.WriteLine("--check servo angle--");
@@ -63,7 +63,7 @@ namespace MovementManager.Model
             for (int i = 1; i <= step; i++)
             {
                 int a = _lastAngle + increment * i * AngleStep;
-                _service.MoveMotor(Pin, (byte)a, waitDuration);
+                _service.MoveServo(Pin, (byte)a, waitDuration);
                 Console.WriteLine("MOVE STEP: " + a);
 
                 SleepIfNotNegative( DelayPerStep );
@@ -73,7 +73,7 @@ namespace MovementManager.Model
             {
                 // last step
                 Console.WriteLine("MOVE STEP (last): " + angle);
-                _service.MoveMotor(Pin, angle, waitDuration);
+                _service.MoveServo(Pin, angle, waitDuration);
 
                 SleepIfNotNegative( DelayPerStep );
             }

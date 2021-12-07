@@ -168,6 +168,10 @@ namespace serial_communication_client.Serial
         }
         public string Send(CommandPayload command, int waitDuration = 0)
         {
+            if (_serialPort == null)
+            {
+                throw new Exception("Serial port is null!");
+            }
             Reset();
             _currentCommandName = command.Name;
             long startCommand   = DateTimeOffset.Now.ToUnixTimeMilliseconds();

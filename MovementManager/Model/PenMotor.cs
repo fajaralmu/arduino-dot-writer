@@ -3,7 +3,7 @@ using serial_communication_client;
 
 namespace MovementManager.Model
 {
-    public class PenMotor:Motor
+    public class PenMotor:Servo
     {
         public byte PenDownAngle {get;}
         public byte PenUpAngle {get;}
