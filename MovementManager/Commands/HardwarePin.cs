@@ -8,5 +8,6 @@ namespace serial_communication_client
         DEFAULT_LED = 13,
 
         DC_MOTOR_A = 9,
+        DC_MOTOR_B = 3,
     }
 }
