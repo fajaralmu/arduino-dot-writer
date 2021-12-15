@@ -1,38 +1,47 @@
+using System;
+using System.Threading.Tasks;
 using MovementManager.Model;
 using MovementManager.Service;
+using serial_communication_client;
 
 namespace MovementManager
 {
     public class DCMotorActuator : BaseActuator
     {
+        // DC Motor A
+        private DCMotor motorWheel;
+        private DCMotor motorSteer;
+        const int input1Wheel = 8, input2Wheel = 7;
+        const int input1Steer = 4, input2Steer = 5;
+
+        private readonly IService _service;
+
         public DCMotorActuator(ISetting setting) : base(setting)
         {
+            _service = CreateService(true);
+            motorWheel = new DCMotor(HardwarePin.DC_MOTOR_A, _service, input1Wheel, input2Wheel);
+            motorSteer = new DCMotor(HardwarePin.DC_MOTOR_B, _service, input1Steer, input2Steer);
+        }
+        public void Turn(byte speed, bool forward, int waitDuration = 0)
+        {
+            motorSteer?.Move((byte)speed, forward, waitDuration);
+            Task.Delay(1000).Wait();
+            motorSteer?.Stop();
         }
 
-        // DC Motor A
-        private DCMotor motorA;
-        private DCMotor motorB;
-        const int input1Pin = 8, input2Pin = 7;
-        const int input1PinB = 4, input2PinB = 5;
-
-        public void MoveMotor(int speed, int waitDuration = 0)
+        public void MoveMotor(int speed, bool forward, int waitDuration = 0)
         {
-            IService service = CreateService(true);
-            motorA = new DCMotor(serial_communication_client.HardwarePin.DC_MOTOR_A, service, input1Pin, input2Pin);
-            motorA.Move((byte)speed, waitDuration);
-            motorB = new DCMotor(serial_communication_client.HardwarePin.DC_MOTOR_B, service, input1PinB, input2PinB);
-            motorB.Move((byte)speed, waitDuration);
-            service.Close();
+            motorWheel?.Move((byte)speed, forward, waitDuration);
         }
 
         public void StopMotor(int waitDuration = 0)
         {
-            IService service = CreateService(true);
-            motorA = new DCMotor(serial_communication_client.HardwarePin.DC_MOTOR_A, service, input1Pin, input2Pin);
-            motorB = new DCMotor(serial_communication_client.HardwarePin.DC_MOTOR_B, service, input1PinB, input2PinB);
-            motorA.Stop();
-            motorB.Stop();
-            service.Close();
+            motorWheel?.Stop();
+        }
+
+        internal void Disconnect()
+        {
+            _service.Close();
         }
     }
 }

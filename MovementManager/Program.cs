@@ -1,5 +1,6 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Drawing;
+using System.Threading.Tasks;
 using MovementManager.InputProcess;
 using MovementManager.Service;
 
@@ -20,12 +21,24 @@ namespace MovementManager
             Bitmap image                                = ImageLoader.LoadImageBitmap("Input/SampleFont.bmp");
 
             DCMotorActuator motorActuator = new DCMotorActuator(setting);
-            
-            for (var i = 0; i < 10; i++)
+            // Test steering
+            Task.Run(()=>{
+                for (var i = 0; i < 100; i++)
+                {
+                    motorActuator.Turn(250, i % 2 == 0);
+                }
+            });
+
+            // Test wheel
+            for (var i = 0; i < 100; i++)
             {
-                motorActuator.MoveMotor(200, 2000);    
-                motorActuator.StopMotor(1000);
+                motorActuator.MoveMotor(250, i % 2 == 0, 0);
+                Task.Delay(20000).Wait();
+                motorActuator.StopMotor();
+                Task.Delay(3000).Wait();
+               
             }
+            motorActuator.Disconnect();
             // writer.Execute(image);
 
         }

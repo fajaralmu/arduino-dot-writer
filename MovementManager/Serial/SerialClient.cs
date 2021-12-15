@@ -5,6 +5,7 @@ using System.Threading;
 using arduino_client_hand_writer.Serial;
 using serial_communication_client.Commands;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace serial_communication_client.Serial
 {
@@ -80,7 +81,7 @@ namespace serial_communication_client.Serial
             lastReceived    = DateTime.Now;
             string data     = _serialPort.ReadLine().Trim();
             
-            if ( _showRawData )
+            if ( true || _showRawData )
             {
                 Console.WriteLine("{raw}" + data);
             }
@@ -166,6 +167,7 @@ namespace serial_communication_client.Serial
         {
             Debug.WriteLine($"Serial Port { _portName } >> { value }");
         }
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public string Send(CommandPayload command, int waitDuration = 0)
         {
             if (_serialPort == null)

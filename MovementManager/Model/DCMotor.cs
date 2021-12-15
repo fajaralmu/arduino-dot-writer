@@ -17,9 +17,9 @@ namespace MovementManager.Model
             Input2 = input2;
         }
 
-        public void Move(byte speed, int waitDuration = 0)
+        public void Move(byte speed, bool forward, int waitDuration = 0)
         {
-            _service.MoveMotor(Pin, Input1, Input2, speed, waitDuration);
+            _service.MoveMotor(Pin, Input1, Input2, speed, forward, waitDuration);
         }
 
         public void Stop(int waitDuration = 0)
